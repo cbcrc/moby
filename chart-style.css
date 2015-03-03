@@ -1,0 +1,57 @@
+div {
+  box-sizing: border-box;
+}
+
+.container {
+  margin: 0px auto 50px auto;
+  width: 50%;
+}
+
+@media (max-width: 1000px) {
+  .container {
+    margin: 0px auto 50px auto;
+    width: 90%;
+  }
+}
+
+.chart {
+  position: relative;
+  border: 1px solid silver;
+  margin-bottom: 10px;
+}
+
+.dot {
+  background-color: skyblue;
+  border: 2px white solid;
+}
+
+.line {
+  background-color: #fbb977;
+}
+
+.barh {
+  background-color: #fbb977 ;
+  padding: 0 0 0 10px;
+}
+
+.label {
+  padding: 0 0 0 10px;
+  top: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.label-text {
+  font-size: .7em;
+  padding-left: 15px;
+}
+
+.barv {
+  background-color: #fbb977 ;
+}
+
+.value {
+  font-weight: bold;
+  padding-left: 5px;
+}
