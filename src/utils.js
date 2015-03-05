@@ -4,10 +4,10 @@ moby.utils = {};
 moby.utils.formatLabel = function(d) {
 	var labelContent = '';
 	if (d.name) {
-		labelContent += d.name;
+		labelContent += '<span class="label-title">' + d.name + '</span>';
 	}
 	if (d.values) {
-		labelContent += '<span class="value">(' + d3.max(d.values) + ')</span>';
+		labelContent += '<span class="label-value">(' + d3.max(d.values) + ')</span>';
 	}
 
 	return labelContent;

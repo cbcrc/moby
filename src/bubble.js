@@ -14,7 +14,7 @@ moby.renderBubble = function(data, config) {
 	var charts = d3.select(config.containerSelector)
 		.selectAll('div.chart')
 		.data([0]);
-	charts.enter().append('div').attr({ 'class': 'chart' });
+	charts.enter().append('div').attr({ 'class': 'bubble chart' });
 
 	charts
 		.style({

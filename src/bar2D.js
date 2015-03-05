@@ -5,7 +5,7 @@ moby.renderBar2D = function(data, config) {
 		.selectAll('div.chart')
 		.data(data);
 
-	charts.enter().append('div').attr({ 'class': 'chart' });
+	charts.enter().append('div').attr({ 'class': 'bar2d chart' });
 
 	charts
 		.style({
@@ -16,11 +16,11 @@ moby.renderBar2D = function(data, config) {
 	charts.exit().remove();
 
 	// bars
-	var bars = charts.selectAll('div.barv')
+	var bars = charts.selectAll('div.bar')
 		.data(function(d) { return d.values; });
 
 	bars.enter().append('div')
-		.attr({'class': 'barv'})
+		.attr({'class': 'bar'})
 		.style({
 			left: function(d, i, pI) { return i * config.width / data[pI].values.length + 'px'; },
 			top: config.height + 'px',

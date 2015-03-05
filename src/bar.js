@@ -5,7 +5,7 @@ moby.renderBar = function(data, config) {
 		.selectAll('div.chart')
 		.data(data);
 
-	charts.enter().append('div').attr({ 'class': 'chart' });
+	charts.enter().append('div').attr({ 'class': 'bar chart' });
 
 	charts
 		.style({
@@ -15,9 +15,9 @@ moby.renderBar = function(data, config) {
 
 	charts.exit().remove();
 
-	var bar = charts.selectAll('div.barh').data(function(d) { return d.values;});
+	var bar = charts.selectAll('div.bar').data(function(d) { return d.values;});
 
-	bar.enter().append('div').attr({ 'class': 'barh' })
+	bar.enter().append('div').attr({ 'class': 'bar' })
 		.style({
 			width: config.width + 'px',
 			height: config.height - 2 + 'px'

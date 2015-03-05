@@ -29,6 +29,11 @@
 
 <script>
 
+/*TODO:
+-sanitize css per chart type
+-hover
+ */
+
 	var dataBubble = [
 		{name: 'Title1', values: [20]},
 		{name: 'Title2', values: [18]},
@@ -47,9 +52,9 @@
 			containerSelector: '#chart1',
 			height: 600,
 			type: 'bubble',
-			labelFormatter: function(d) {
-				return d.name + '<br><span class="value">(' + d.values + ')</span>';
-			}
+//			labelFormatter: function(d) {
+//				return '<span class="label-text">' + d.name + '</span><br><span class="value">(' + d.values + ')</span>';
+//			}
 		})
 		.render(dataBubble);
 
@@ -72,7 +77,7 @@
 			height: 30,
 			type: 'bar',
 			labelFormatter: function(d) {
-				return d.name + '<span class="value">(' + d.values + ')</span><span class="label-text">' + d.content + '</span>';
+				return '<span class="label-title"> ' + d.name + '</span><span class="label-value">(' + d.values + ')</span><span class="label-text">' + d.content + '</span>';
 			}
 		})
 		.render(dataBar2D);

@@ -20,21 +20,7 @@ div {
   margin-bottom: 10px;
 }
 
-.dot {
-  background-color: skyblue;
-  border: 2px white solid;
-}
-
-.line {
-  background-color: #fbb977;
-}
-
-.barh {
-  background-color: #fbb977 ;
-  padding: 0 0 0 10px;
-}
-
-.label {
+.chart .label {
   padding: 0 0 0 10px;
   top: 0;
   overflow: hidden;
@@ -42,30 +28,46 @@ div {
   white-space: nowrap;
 }
 
-.label-text {
+.chart .label-text {
   font-size: .7em;
   padding-left: 15px;
+  line-height: 12px;
 }
 
-.barv {
-  background-color: #fbb977 ;
-}
-
-.value {
+.chart .label-value {
   font-weight: bold;
+  font-size: .2em;
   padding-left: 5px;
 }
 
-#chart1 .node {
+.line.chart .dot {
+  background-color: skyblue;
+  border: 2px white solid;
+}
+
+.line.chart .line {
+  background-color: #fbb977;
+}
+
+.bar.chart .bar {
+  background-color: #fbb977 ;
+  padding: 0 0 0 10px;
+}
+
+.bar2d.chart .bar {
+  background-color: #fbb977 ;
+}
+
+.bubble.chart .node {
   border: 1px solid silver;
   background-color: #fbb977;
 }
 
-#chart1 .value {
+.bubble.chart .value {
   font-size: 12px;
   line-height: 12px;
 }
 
-#chart1 .top{
+.bubble.chart .top{
   display: none;
 }

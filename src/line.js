@@ -5,7 +5,7 @@ moby.renderLine = function(data, config) {
 		.selectAll('div.chart')
 		.data(data);
 
-	charts.enter().append('div').attr({ 'class': 'chart' });
+	charts.enter().append('div').attr({ 'class': 'line chart' });
 
 	charts
 		.style({

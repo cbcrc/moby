@@ -48,10 +48,10 @@ moby.utils = {};
 moby.utils.formatLabel = function(d) {
     var labelContent = "";
     if (d.name) {
-        labelContent += d.name;
+        labelContent += '<span class="label-title">' + d.name + "</span>";
     }
     if (d.values) {
-        labelContent += '<span class="value">(' + d3.max(d.values) + ")</span>";
+        labelContent += '<span class="label-value">(' + d3.max(d.values) + ")</span>";
     }
     return labelContent;
 };
@@ -103,7 +103,7 @@ moby.utils.override = function(_objA, _objB) {
 moby.renderLine = function(data, config) {
     var charts = d3.select(config.containerSelector).selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
-        "class": "chart"
+        "class": "line chart"
     });
     charts.style({
         width: config.width + "px",
@@ -212,18 +212,18 @@ moby.renderLine = function(data, config) {
 moby.renderBar = function(data, config) {
     var charts = d3.select(config.containerSelector).selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
-        "class": "chart"
+        "class": "bar chart"
     });
     charts.style({
         width: config.width + "px",
         height: config.height + "px"
     });
     charts.exit().remove();
-    var bar = charts.selectAll("div.barh").data(function(d) {
+    var bar = charts.selectAll("div.bar").data(function(d) {
         return d.values;
     });
     bar.enter().append("div").attr({
-        "class": "barh"
+        "class": "bar"
     }).style({
         width: config.width + "px",
         height: config.height - 2 + "px"
@@ -255,18 +255,18 @@ moby.renderBar = function(data, config) {
 moby.renderBar2D = function(data, config) {
     var charts = d3.select(config.containerSelector).selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
-        "class": "chart"
+        "class": "bar2d chart"
     });
     charts.style({
         width: config.width + "px",
         height: config.height + "px"
     });
     charts.exit().remove();
-    var bars = charts.selectAll("div.barv").data(function(d) {
+    var bars = charts.selectAll("div.bar").data(function(d) {
         return d.values;
     });
     bars.enter().append("div").attr({
-        "class": "barv"
+        "class": "bar"
     }).style({
         left: function(d, i, pI) {
             return i * config.width / data[pI].values.length + "px";
@@ -305,5 +305,72 @@ moby.renderBar2D = function(data, config) {
     });
     bar.html(config.labelFormatter);
     bar.exit().remove();
+    return this;
+};
+
+moby.renderBubble = function(data, config) {
+    var keywordsEntries = data.map(function(d, i) {
+        return {
+            key: d.name,
+            value: d.values[0]
+        };
+    });
+    var pack = d3.layout.pack().sort(null).size([ config.width, config.height ]).padding(2).value(function(d) {
+        return d.value;
+    });
+    var charts = d3.select(config.containerSelector).selectAll("div.chart").data([ 0 ]);
+    charts.enter().append("div").attr({
+        "class": "bubble chart"
+    });
+    charts.style({
+        width: config.width + "px",
+        height: config.height + "px"
+    });
+    var translate = function(d) {
+        return "translate(" + (d.x - d.r) + "px," + (d.y - d.r) + "px)";
+    };
+    var bubbleTween = function tween(d, i, a) {
+        return d3.interpolateString(this.style.webkitTransform, translate(d));
+    };
+    var nodes = charts.selectAll(".node").data(pack.nodes({
+        key: "a",
+        value: 1,
+        children: keywordsEntries
+    }));
+    nodes.enter().append("div").attr({
+        "class": "node"
+    }).style({
+        "-webkit-transform": translate,
+        transform: translate
+    }).style({
+        position: "absolute",
+        "text-align": "center"
+    });
+    nodes.html(function(d) {
+        return config.labelFormatter({
+            name: d.key,
+            values: [ d.value ]
+        });
+    }).transition().duration(config.transitionDuration).styleTween("-webkit-transform", bubbleTween).styleTween("transform", bubbleTween).style({
+        width: function(d) {
+            return d.r * 2 + "px";
+        },
+        height: function(d) {
+            return d.r * 2 + "px";
+        },
+        "border-radius": function(d) {
+            return d.r + "px";
+        },
+        "font-size": function(d) {
+            return ~~(d.r / d.key.length) * 4 + "px";
+        },
+        "padding-top": function(d, i) {
+            if (i !== 0) {
+                return ~~(d.r / d.key.length) * 4 + "px";
+            }
+        }
+    });
+    nodes.exit().remove();
+    d3.select(nodes[0][0]).classed("top", true).text("");
     return this;
 };
