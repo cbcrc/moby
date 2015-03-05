@@ -18,7 +18,8 @@ moby.init = function() {
 
 	var renderers = {
 		line: moby.renderLine,
-		bars: moby.renderBars,
+		bar2D: moby.renderBar2D,
+		bubble: moby.renderBubble,
 		bar: moby.renderBar
 	};
 

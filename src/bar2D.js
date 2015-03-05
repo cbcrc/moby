@@ -1,4 +1,4 @@
-moby.renderBars = function(data, config) {
+moby.renderBar2D = function(data, config) {
 
 	// containers
 	var charts = d3.select(config.containerSelector)
@@ -19,7 +19,8 @@ moby.renderBars = function(data, config) {
 	var bars = charts.selectAll('div.barv')
 		.data(function(d) { return d.values; });
 
-	bars.enter().append('div').attr({'class': 'barv'})
+	bars.enter().append('div')
+		.attr({'class': 'barv'})
 		.style({
 			left: function(d, i, pI) { return i * config.width / data[pI].values.length + 'px'; },
 			top: config.height + 'px',

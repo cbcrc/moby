@@ -19,7 +19,8 @@ moby.init = function() {
     }, 300));
     var renderers = {
         line: moby.renderLine,
-        bars: moby.renderBars,
+        bar2D: moby.renderBar2D,
+        bubble: moby.renderBubble,
         bar: moby.renderBar
     };
     var render = function(data) {
@@ -126,9 +127,10 @@ moby.renderLine = function(data, config) {
         "-webkit-transform-origin": "0% 0%",
         "transform-origin": "0% 0%",
         "-webkit-transform": "rotate(0rad)",
+        transform: "rotate(0rad)",
         position: "absolute"
     });
-    lines.transition().duration(config.transitionDuration).styleTween("-webkit-transform", function tween(d, i, a) {
+    var lineTween = function tween(d, i, a) {
         var parentData = this.parentNode.__data__;
         var y = config.height - d * config.height / d3.max(parentData.values);
         var nextIdx = Math.min(i + 1, parentData.values.length - 1);
@@ -136,15 +138,8 @@ moby.renderLine = function(data, config) {
         var h = nextY - y;
         var w = config.width / parentData.values.length;
         return d3.interpolateString(this.style.webkitTransform, "rotate(" + Math.atan2(h, w) + "rad)");
-    }).styleTween("transform", function tween(d, i, a) {
-        var parentData = this.parentNode.__data__;
-        var y = config.height - d * config.height / d3.max(parentData);
-        var nextIdx = Math.min(i + 1, parentData.values.length - 1);
-        var nextY = config.height - parentData.values[nextIdx] * config.height / d3.max(parentData.values);
-        var h = nextY - y;
-        var w = config.width / parentData.length;
-        return d3.interpolateString(this.style.transform, "rotate(" + Math.atan2(h, w) + "rad)");
-    }).style({
+    };
+    lines.transition().duration(config.transitionDuration).styleTween("-webkit-transform", lineTween).styleTween("transform", lineTween).style({
         width: function(d, i, pI) {
             var parentData = this.parentNode.__data__;
             var y = config.height - d * config.height / d3.max(parentData.values);
@@ -257,7 +252,7 @@ moby.renderBar = function(data, config) {
     label.exit().remove();
 };
 
-moby.renderBars = function(data, config) {
+moby.renderBar2D = function(data, config) {
     var charts = d3.select(config.containerSelector).selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
         "class": "chart"
