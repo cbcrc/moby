@@ -2,19 +2,9 @@ var moby = { version: '0.1.0' };
 
 moby.idx = 0;
 
-moby.init = function() {
-	var config = {
-		containerSelector: null,
-		width: 300,
-		height: 200,
-		type: 'bar',
-		transitionDuration: 200,
-		labelFormatter: moby.utils.formatLabel
-	};
+moby.init = function(config) {
 
 	var dataCache = null;
-
-	d3.select(window).on('resize.' + moby.idx++, moby.utils.debounce(function() { render(); }, 300));
 
 	var renderers = {
 		line: moby.renderLine,
@@ -23,7 +13,31 @@ moby.init = function() {
 		bar: moby.renderBar
 	};
 
-	var render = function(data) {
+	var exports = {};
+
+	exports.config = {
+		containerSelector: null,
+		width: 300,
+		height: 200,
+		type: 'bar',
+		transitionDuration: 300,
+		labelFormatter: moby.utils.formatLabel,
+		tooltipFormatter: moby.utils.formatTooltip,
+		colorByKey: null
+	};
+
+	exports.setConfig = function(newConfig) {
+		moby.utils.override(newConfig, this.config);
+		return this;
+	};
+
+	exports.setConfig(config);
+
+	exports.events = d3.dispatch('hover', 'hoverout');
+
+	exports.tooltip = moby.tooltip.call(exports);
+
+	exports.render = function(data) {
 
 		if (data) {
 			dataCache = data;
@@ -31,21 +45,18 @@ moby.init = function() {
 		else {
 			data = dataCache;
 		}
-		config.width = d3.select(config.containerSelector).node().offsetWidth;
+		var containerNode = d3.select(this.config.containerSelector).node();
+		this.config.width = containerNode.offsetWidth;
+		this.config.height = containerNode.offsetHeight;
 
-		renderers[config.type](data, config);
+		renderers[this.config.type].call(this, data);
 		return this;
 	};
 
-	var setConfig = function(newConfig) {
+	d3.rebind(exports, exports.events, 'on');
 
-		moby.utils.override(newConfig, config);
-		return this;
-	};
+	d3.select(window).on('resize.' + moby.idx++, moby.utils.debounce(function() { exports.render(); }, 300));
 
 	// public functions
-	return {
-		render: render,
-		setConfig: setConfig
-	};
+	return exports;
 };

@@ -5,6 +5,8 @@ div {
 .container {
   margin: 0px auto 50px auto;
   width: 50%;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
 }
 
 @media (max-width: 1000px) {
@@ -17,7 +19,7 @@ div {
 .chart {
   position: relative;
   border: 1px solid silver;
-  margin-bottom: 10px;
+  height: 500px;
 }
 
 .chart .label {
@@ -29,20 +31,21 @@ div {
 }
 
 .chart .label-text {
-  font-size: .7em;
   padding-left: 15px;
   line-height: 12px;
 }
 
 .chart .label-value {
-  font-weight: bold;
-  font-size: .2em;
-  padding-left: 5px;
+
 }
 
 .line.chart .dot {
-  background-color: skyblue;
+  background-color: #fbb977;
   border: 2px white solid;
+}
+
+.line.chart .dot.hover {
+  background-color: skyblue;
 }
 
 .line.chart .line {
@@ -50,12 +53,24 @@ div {
 }
 
 .bar.chart .bar {
-  background-color: #fbb977 ;
+  background-color: #fbb977;
   padding: 0 0 0 10px;
 }
 
+.bar.chart .bar.hover {
+  background-color: skyblue;
+}
+
 .bar2d.chart .bar {
-  background-color: #fbb977 ;
+  background-color: #fbb977;
+}
+
+.bar2d.chart .bar.hover {
+  background-color: skyblue;
+}
+
+.bar2d.chart .label {
+  font-size: 18px;
 }
 
 .bubble.chart .node {
@@ -63,9 +78,12 @@ div {
   background-color: #fbb977;
 }
 
+.bubble.chart .node.hover {
+  border: 1px solid silver;
+  background-color: skyblue;
+}
+
 .bubble.chart .value {
-  font-size: 12px;
-  line-height: 12px;
 }
 
 .bubble.chart .top{

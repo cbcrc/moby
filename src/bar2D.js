@@ -1,7 +1,12 @@
-moby.renderBar2D = function(data, config) {
+moby.renderBar2D = function(data) {
+
+	var that = this;
 
 	// containers
-	var charts = d3.select(config.containerSelector)
+	var container = d3.select(this.config.containerSelector);
+
+	var height = this.config.height / data.length;
+	var charts = container
 		.selectAll('div.chart')
 		.data(data);
 
@@ -9,8 +14,8 @@ moby.renderBar2D = function(data, config) {
 
 	charts
 		.style({
-			width: config.width + 'px',
-			height: config.height + 'px'
+			width: this.config.width + 'px',
+			height: height + 'px'
 		});
 
 	charts.exit().remove();
@@ -22,40 +27,86 @@ moby.renderBar2D = function(data, config) {
 	bars.enter().append('div')
 		.attr({'class': 'bar'})
 		.style({
-			left: function(d, i, pI) { return i * config.width / data[pI].values.length + 'px'; },
-			top: config.height + 'px',
-			width: function(d, i, pI) { return config.width / data[pI].values.length + 'px'; },
+			left: function(d, i, pI) { return i * that.config.width / data[pI].values.length + 'px'; },
+			top: height + 'px',
+			width: function(d, i, pI) { return that.config.width / data[pI].values.length + 'px'; },
 			height: 0 + 'px',
 			position: 'absolute'
+		})
+		.on('mousemove', function(d, i, pI) {
+			d3.select(this).classed('hover', true);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.show.call(that, {name: data[pI].name, values: [d]}, {pos: mouse});
+			that.events.hover.call(that, d, {pos: mouse});
+		})
+		.on('mouseout', function(d, i) {
+			d3.select(this).classed('hover', false);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.hide.call(that);
+			that.events.hoverout.call(that, d, {pos: mouse});
 		});
 
 	bars
 		.transition()
-		.duration(config.transitionDuration)
+		.duration(this.config.transitionDuration)
 		.style({
-			left: function(d, i, pI) { return i * config.width / data[pI].values.length + 'px'; },
+			left: function(d, i, pI) { return i * that.config.width / data[pI].values.length + 'px'; },
 			top: function(d, i, pI) {
-				return config.height - ( d * config.height / d3.max(data[pI].values)) + 'px';
+				return height - ( d * height / d3.max(data[pI].values)) + 'px';
 			},
-			width: function(d, i, pI) { return config.width / data[pI].values.length - 2 + 'px'; },
-			height: function(d, i, pI) { return d / d3.max(data[pI].values) * config.height - 2 + 'px'; }
+			width: function(d, i, pI) { return that.config.width / data[pI].values.length - 2 + 'px'; },
+			height: function(d, i, pI) { return d / d3.max(data[pI].values) * height - 2 + 'px'; }
 		});
 
 	bars.exit().remove();
 
-	// labels
-	var bar = charts.selectAll('div.label').data(function(d) { return [d];});
 
-	bar.enter().append('div').attr({ 'class': 'label' })
+	// labels
+	var labels = charts.selectAll('div.label')
+		.data(function(d) { return d.values; });
+
+	labels.enter().append('div')
+		.attr({'class': 'label'})
 		.style({
-			width: config.width + 'px',
-			height: config.height - 2 + 'px',
-			position: 'absolute'
+			left: function(d, i, pI) { return i * that.config.width / data[pI].values.length + 'px'; },
+			top: function(d, i, pI) {
+				var fontSize = parseInt(window.getComputedStyle(this).fontSize, 10);
+				return height - fontSize + 'px';
+			},
+			position: 'absolute',
+			'pointer-events': 'none'
 		});
 
-	bar.html(config.labelFormatter);
+	labels
+		.html(function(d, i, pI){
+			return that.config.labelFormatter(data[pI], i);
+		})
+		.transition()
+		.duration(this.config.transitionDuration)
+		.style({
+			left: function(d, i, pI) { return i * that.config.width / data[pI].values.length + 'px'; },
+			top: function(d, i, pI) {
+				var fontSize = parseInt(window.getComputedStyle(this).fontSize, 10);
+				return height - fontSize * 1.4 + 'px';
+			}
+		});
 
-	bar.exit().remove();
+	labels.exit().remove();
+
+//	// title
+//	var title = charts.selectAll('div.title').data(function(d) { return [d];});
+//
+//	title.enter().append('div').attr({ 'class': 'title' })
+//		.style({
+//			width: this.config.width + 'px',
+//			height: height - 2 + 'px',
+//			position: 'absolute',
+//			'pointer-events': 'none'
+//		});
+//
+//	title.html(this.config.labelFormatter);
+//
+//	title.exit().remove();
 
 	return this;
 };

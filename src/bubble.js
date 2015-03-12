@@ -1,4 +1,6 @@
-moby.renderBubble = function(data, config) {
+moby.renderBubble = function(data) {
+
+	var that = this;
 
 	var keywordsEntries = data.map(function(d, i) {
 		return {key: d.name, value: d.values[0]};
@@ -6,20 +8,24 @@ moby.renderBubble = function(data, config) {
 
 	var pack = d3.layout.pack()
 		.sort(null)
-		.size([config.width, config.height])
+		.size([this.config.width, this.config.height])
 		.padding(2)
 		.value(function(d) {return d.value; });
 
+	var colors = moby.utils.colorPicker();
+
 	// containers
-	var charts = d3.select(config.containerSelector)
+	var container = d3.select(this.config.containerSelector);
+
+	var charts = container
 		.selectAll('div.chart')
 		.data([0]);
 	charts.enter().append('div').attr({ 'class': 'bubble chart' });
 
 	charts
 		.style({
-			width: config.width + 'px',
-			height: config.height + 'px'
+			width: this.config.width + 'px',
+			height: this.config.height + 'px'
 		});
 
 	var translate = function(d) { return 'translate(' + (d.x - d.r) + 'px,' + (d.y - d.r) + 'px)'; };
@@ -35,31 +41,74 @@ moby.renderBubble = function(data, config) {
 		.attr({'class': 'node'})
 		.style({
 			'-webkit-transform': translate,
-			'transform': translate
+			'transform': translate,
+			width: 0 + 'px',
+			height: 0 + 'px',
+			'border-radius': function(d) { return d.r + 'px';}
 		})
 		.style({
 			position: 'absolute',
 			'text-align': 'center'
+		})
+		.on('mousemove', function(d, i) {
+			d3.select(this).classed('hover', true);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.show.call(that, {name: d.key, values: [d.value]}, {pos: mouse});
+			that.events.hover.call(that, d, {pos: mouse});
+		})
+		.on('mouseout', function(d, i) {
+			d3.select(this).classed('hover', false);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.hide.call(that);
+			that.events.hoverout.call(that, d, {pos: mouse});
+		})
+		.append('span').attr({'class': 'label-container'})
+		.style({
+			'font-size': 10 + 'px',
+			'pointer-events': 'none',
+			position: 'absolute',
+			left: 0
 		});
 
 	nodes
-		.html(function(d) { return config.labelFormatter({name: d.key, values: [d.value]}); })
 		.transition()
-		.duration(config.transitionDuration)
+		.duration(this.config.transitionDuration)
 		.styleTween('-webkit-transform', bubbleTween)
 		.styleTween('transform', bubbleTween)
 		.style({
 			width: function(d) { return d.r * 2 + 'px'; },
 			height: function(d) { return d.r * 2 + 'px'; },
 			'border-radius': function(d) { return d.r + 'px';},
-			'font-size': function(d) {
-				return ~~(d.r / d.key.length) * 4 + 'px';
-			},
-			'padding-top': function(d, i) {
-				if (i !== 0) {
-					return ~~(d.r / d.key.length) * 4 + 'px';
+			'background-color': function(d, i, pI){
+				var key = that.config.colorByKey;
+				if(key && data[i]){
+					return colors(data[i][key]);
+				}
+				else {
+					return null;
 				}
 			}
+		})
+		.each('end', function(d) {
+
+			var text = that.config.labelFormatter({name: d.key, values: [d.value]});
+			d3.select(this).select('.label-container')
+				.html(text)
+				.style({
+					'font-size': function() {
+						var fontSize = parseInt(this.style.fontSize, 10);
+						return ~~(fontSize * (d.r * 1.8) / this.offsetWidth)+ 'px';
+					},
+					'margin-top': function() {
+						return d.r - this.offsetHeight / 2 + "px"
+					},
+					'margin-left': function() {
+						return (d.r * 0.1) + "px"
+					}
+				})
+				.filter(function() { return d.r < 20})
+				.html('');
+
 		});
 
 	nodes.exit().remove();

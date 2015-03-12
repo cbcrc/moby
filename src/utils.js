@@ -7,10 +7,22 @@ moby.utils.formatLabel = function(d) {
 		labelContent += '<span class="label-title">' + d.name + '</span>';
 	}
 	if (d.values) {
-		labelContent += '<span class="label-value">(' + d3.max(d.values) + ')</span>';
+		labelContent += '<span class="label-value"> (' + d3.max(d.values) + ')</span>';
 	}
 
 	return labelContent;
+};
+
+moby.utils.formatTooltip = function(d) {
+	var tooltipContent = '';
+	if (d.name) {
+		tooltipContent += '<span class="label-title">' + d.name + '</span>';
+	}
+	if (d.values) {
+		tooltipContent += '<span class="label-value"> (' + d3.max(d.values) + ')</span>';
+	}
+
+	return tooltipContent;
 };
 
 moby.utils.generateRandomString = function() {
@@ -48,3 +60,5 @@ moby.utils.debounce = function(a, b, c) {
 };
 
 moby.utils.override = function(_objA, _objB) { for (var x in _objA) { if (x in _objB) { _objB[x] = _objA[x]; } } };
+
+moby.utils.colorPicker = d3.scale.category20;

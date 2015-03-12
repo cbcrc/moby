@@ -1,16 +1,34 @@
-moby.renderBar = function(data, config) {
+moby.renderBar = function(data) {
+
+	var that = this;
+
+	var colors = moby.utils.colorPicker();
 
 	// containers
-	var charts = d3.select(config.containerSelector)
+	var container = d3.select(this.config.containerSelector);
+
+	var charts = container
 		.selectAll('div.chart')
 		.data(data);
 
-	charts.enter().append('div').attr({ 'class': 'bar chart' });
+	charts.enter().append('div').attr({ 'class': 'bar chart' })
+		.on('mousemove', function(d, i) {
+			d3.select(this).select('.bar').classed('hover', true);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.show.call(that, d, {pos: mouse});
+			that.events.hover.call(that, d, {pos: mouse});
+		})
+		.on('mouseout', function(d, i) {
+			d3.select(this).select('.bar').classed('hover', false);
+			var mouse = d3.mouse(container.node());
+			that.tooltip.hide.call(that);
+			that.events.hoverout.call(that, d, {pos: mouse});
+		});
 
 	charts
 		.style({
-			width: config.width + 'px',
-			height: config.height + 'px'
+			width: this.config.width + 'px',
+			height: this.config.height / data.length + 'px'
 		});
 
 	charts.exit().remove();
@@ -19,16 +37,25 @@ moby.renderBar = function(data, config) {
 
 	bar.enter().append('div').attr({ 'class': 'bar' })
 		.style({
-			width: config.width + 'px',
-			height: config.height - 2 + 'px'
+			width: this.config.width + 'px',
+			height: '100%'
 		});
 
 	bar
 		.transition()
-		.duration(config.transitionDuration)
+		.duration(this.config.transitionDuration)
 		.style({
 			width: function(d, i, pI) {
-				return d / d3.max(d3.merge(data.map(function(d, i) { return d.values; }))) * config.width - 2 + 'px';
+				return d / d3.max(d3.merge(data.map(function(d, i) { return d.values; }))) * that.config.width - 2 + 'px';
+			},
+			'background-color': function(d, i, pI){
+				var key = that.config.colorByKey;
+				if(key && data[pI]){
+					return colors(data[pI][key]);
+				}
+				else {
+					return null;
+				}
 			}
 		});
 
@@ -39,16 +66,16 @@ moby.renderBar = function(data, config) {
 
 	label.enter().append('div').attr({ 'class': 'label' })
 		.style({
-			width: config.width + 'px',
-			height: config.height - 2 + 'px',
+			width: this.config.width + 'px',
+			height: '100%',
 			position: 'absolute'
 		});
 
 	label
 		.style({
-			width: config.width + 'px'
+			width: this.config.width + 'px'
 		})
-		.html(config.labelFormatter);
+		.html(this.config.labelFormatter);
 
 	label.exit().remove();
 
