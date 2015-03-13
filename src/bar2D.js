@@ -84,7 +84,10 @@ moby.renderBar2D = function(data) {
 		.transition()
 		.duration(this.config.transitionDuration)
 		.style({
-			left: function(d, i, pI) { return i * that.config.width / data[pI].values.length + 'px'; },
+			left: function(d, i, pI) {
+                var barW = that.config.width / data[pI].values.length;
+                return i * barW + barW / 10 + "px";
+            },
 			top: function(d, i, pI) {
 				var fontSize = parseInt(window.getComputedStyle(this).fontSize, 10);
 				return height - fontSize * 1.4 + 'px';

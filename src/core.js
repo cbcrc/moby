@@ -23,7 +23,9 @@ moby.init = function(config) {
 		transitionDuration: 300,
 		labelFormatter: moby.utils.formatLabel,
 		tooltipFormatter: moby.utils.formatTooltip,
-		colorByKey: null
+		colorByKey: null,
+		sortByKey: null,
+		labelRadiusThreshold: 20
 	};
 
 	exports.setConfig = function(newConfig) {

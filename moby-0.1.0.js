@@ -21,7 +21,9 @@ moby.init = function(config) {
         transitionDuration: 300,
         labelFormatter: moby.utils.formatLabel,
         tooltipFormatter: moby.utils.formatTooltip,
-        colorByKey: null
+        colorByKey: null,
+        sortByKey: null,
+        labelRadiusThreshold: 20
     };
     exports.setConfig = function(newConfig) {
         moby.utils.override(newConfig, this.config);
@@ -116,6 +118,8 @@ moby.utils.override = function(_objA, _objB) {
         }
     }
 };
+
+moby.utils.colorPicker = d3.scale.category20;
 
 moby.tooltip = function() {
     var exports = {};
@@ -296,7 +300,7 @@ moby.renderLine = function(data, config) {
 
 moby.renderBar = function(data) {
     var that = this;
-    var colors = d3.scale.category20();
+    var colors = moby.utils.colorPicker();
     var container = d3.select(this.config.containerSelector);
     var charts = container.selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
@@ -447,7 +451,8 @@ moby.renderBar2D = function(data) {
         return that.config.labelFormatter(data[pI], i);
     }).transition().duration(this.config.transitionDuration).style({
         left: function(d, i, pI) {
-            return i * that.config.width / data[pI].values.length + "px";
+            var barW = that.config.width / data[pI].values.length;
+            return i * barW + barW / 10 + "px";
         },
         top: function(d, i, pI) {
             var fontSize = parseInt(window.getComputedStyle(this).fontSize, 10);
@@ -463,13 +468,20 @@ moby.renderBubble = function(data) {
     var keywordsEntries = data.map(function(d, i) {
         return {
             key: d.name,
-            value: d.values[0]
+            value: d.values[0],
+            data: d
         };
     });
-    var pack = d3.layout.pack().sort(null).size([ this.config.width, this.config.height ]).padding(2).value(function(d) {
+    var sortKey = that.config.sortByKey;
+    var pack = d3.layout.pack().sort(function(a, b) {
+        if (sortKey) {
+            return d3.ascending(b.data[sortKey], a.data[sortKey]);
+        }
+        return d3.ascending(b.value, a.value);
+    }).size([ this.config.width, this.config.height ]).padding(2).value(function(d) {
         return d.value;
     });
-    var colors = d3.scale.category20();
+    var colors = moby.utils.colorPicker();
     var container = d3.select(this.config.containerSelector);
     var charts = container.selectAll("div.chart").data([ 0 ]);
     charts.enter().append("div").attr({
@@ -542,8 +554,8 @@ moby.renderBubble = function(data) {
         },
         "background-color": function(d, i, pI) {
             var key = that.config.colorByKey;
-            if (key && data[i]) {
-                return colors(data[i][key]);
+            if (key && data[i - 1]) {
+                return colors(data[i - 1][key]);
             } else {
                 return null;
             }
@@ -556,7 +568,7 @@ moby.renderBubble = function(data) {
         d3.select(this).select(".label-container").html(text).style({
             "font-size": function() {
                 var fontSize = parseInt(this.style.fontSize, 10);
-                return ~~(fontSize * (d.r * 1.8) / this.offsetWidth) + "px";
+                return ~~(fontSize * (d.r * 2) / this.offsetWidth) * .9 + "px";
             },
             "margin-top": function() {
                 return d.r - this.offsetHeight / 2 + "px";
@@ -565,7 +577,7 @@ moby.renderBubble = function(data) {
                 return d.r * .1 + "px";
             }
         }).filter(function() {
-            return d.r < 20;
+            return d.r < that.config.labelRadiusThreshold;
         }).html("");
     });
     nodes.exit().remove();

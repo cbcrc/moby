@@ -35,17 +35,13 @@ div {
   line-height: 12px;
 }
 
-.chart .label-value {
-
+.chart .hover {
+  border: 3px solid black!important;
 }
 
 .line.chart .dot {
   background-color: #fbb977;
   border: 2px white solid;
-}
-
-.line.chart .dot.hover {
-  background-color: skyblue;
 }
 
 .line.chart .line {
@@ -57,16 +53,8 @@ div {
   padding: 0 0 0 10px;
 }
 
-.bar.chart .bar.hover {
-  background-color: skyblue;
-}
-
 .bar2d.chart .bar {
   background-color: #fbb977;
-}
-
-.bar2d.chart .bar.hover {
-  background-color: skyblue;
 }
 
 .bar2d.chart .label {
@@ -76,14 +64,6 @@ div {
 .bubble.chart .node {
   border: 1px solid silver;
   background-color: #fbb977;
-}
-
-.bubble.chart .node.hover {
-  border: 1px solid silver;
-  background-color: skyblue;
-}
-
-.bubble.chart .value {
 }
 
 .bubble.chart .top{

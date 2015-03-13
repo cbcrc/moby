@@ -3,14 +3,21 @@ moby.renderBubble = function(data) {
 	var that = this;
 
 	var keywordsEntries = data.map(function(d, i) {
-		return {key: d.name, value: d.values[0]};
+		return {key: d.name, value: d.values[0], data: d};
 	});
 
+	var sortKey = that.config.sortByKey;
 	var pack = d3.layout.pack()
-		.sort(null)
+		.sort(function(a, b) {
+			if (sortKey) {
+				return d3.ascending(b.data[sortKey], a.data[sortKey]);
+			}
+
+			return d3.ascending(b.value, a.value);
+		})
 		.size([this.config.width, this.config.height])
 		.padding(2)
-		.value(function(d) {return d.value; });
+		.value(function(d) { return d.value; });
 
 	var colors = moby.utils.colorPicker();
 
@@ -79,10 +86,10 @@ moby.renderBubble = function(data) {
 			width: function(d) { return d.r * 2 + 'px'; },
 			height: function(d) { return d.r * 2 + 'px'; },
 			'border-radius': function(d) { return d.r + 'px';},
-			'background-color': function(d, i, pI){
+			'background-color': function(d, i, pI) {
 				var key = that.config.colorByKey;
-				if(key && data[i]){
-					return colors(data[i][key]);
+				if (key && data[i - 1]) {
+					return colors(data[i - 1][key]);
 				}
 				else {
 					return null;
@@ -97,7 +104,7 @@ moby.renderBubble = function(data) {
 				.style({
 					'font-size': function() {
 						var fontSize = parseInt(this.style.fontSize, 10);
-						return ~~(fontSize * (d.r * 1.8) / this.offsetWidth)+ 'px';
+						return ~~(fontSize * (d.r * 2) / this.offsetWidth) * 0.9 + 'px';
 					},
 					'margin-top': function() {
 						return d.r - this.offsetHeight / 2 + "px"
@@ -106,7 +113,7 @@ moby.renderBubble = function(data) {
 						return (d.r * 0.1) + "px"
 					}
 				})
-				.filter(function() { return d.r < 20})
+				.filter(function() { return d.r < that.config.labelRadiusThreshold})
 				.html('');
 
 		});
