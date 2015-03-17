@@ -20,12 +20,13 @@ moby.init = function(config) {
 		width: 300,
 		height: 200,
 		type: 'bar',
-		transitionDuration: 300,
+		transitionDuration: 400,
 		labelFormatter: moby.utils.formatLabel,
 		tooltipFormatter: moby.utils.formatTooltip,
 		colorByKey: null,
 		sortByKey: null,
-		labelRadiusThreshold: 20
+		labelRadiusThreshold: 20,
+		colors: null
 	};
 
 	exports.setConfig = function(newConfig) {
@@ -35,7 +36,7 @@ moby.init = function(config) {
 
 	exports.setConfig(config);
 
-	exports.events = d3.dispatch('hover', 'hoverout');
+	exports.events = d3.dispatch('hover', 'hoverout', 'click');
 
 	exports.tooltip = moby.tooltip.call(exports);
 

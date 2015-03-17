@@ -19,7 +19,7 @@ moby.renderBubble = function(data) {
 		.padding(2)
 		.value(function(d) { return d.value; });
 
-	var colors = moby.utils.colorPicker();
+	var colors = this.config.colors || moby.utils.colorPicker();
 
 	// containers
 	var container = d3.select(this.config.containerSelector);
@@ -42,7 +42,7 @@ moby.renderBubble = function(data) {
 	};
 
 	var nodes = charts.selectAll('.node')
-		.data(pack.nodes({key: 'a', value: 1, children: keywordsEntries}));
+		.data(pack.nodes({key: 'a', value: 1, children: keywordsEntries}), function(d){ return d.key; });
 
 	nodes.enter().append('div')
 		.attr({'class': 'node'})
@@ -51,9 +51,7 @@ moby.renderBubble = function(data) {
 			'transform': translate,
 			width: 0 + 'px',
 			height: 0 + 'px',
-			'border-radius': function(d) { return d.r + 'px';}
-		})
-		.style({
+			'border-radius': function(d) { return d.r + 'px';},
 			position: 'absolute',
 			'text-align': 'center'
 		})
@@ -69,6 +67,12 @@ moby.renderBubble = function(data) {
 			that.tooltip.hide.call(that);
 			that.events.hoverout.call(that, d, {pos: mouse});
 		})
+        .on('click', function(d, i) {
+            d3.select(this).classed('hover', false);
+            that.tooltip.hide.call(that);
+            var mouse = d3.mouse(container.node());
+            that.events.click.call(that, d, {pos: mouse});
+        })
 		.append('span').attr({'class': 'label-container'})
 		.style({
 			'font-size': 10 + 'px',
@@ -76,6 +80,9 @@ moby.renderBubble = function(data) {
 			position: 'absolute',
 			left: 0
 		});
+
+
+    nodes.selectAll('.label-container').html('');
 
 	nodes
 		.transition()
@@ -100,6 +107,8 @@ moby.renderBubble = function(data) {
 
 			var text = that.config.labelFormatter({name: d.key, values: [d.value]});
 			d3.select(this).select('.label-container')
+                .html('')
+                .filter(function() { return d.r > that.config.labelRadiusThreshold})
 				.html(text)
 				.style({
 					'font-size': function() {
@@ -112,9 +121,7 @@ moby.renderBubble = function(data) {
 					'margin-left': function() {
 						return (d.r * 0.1) + "px"
 					}
-				})
-				.filter(function() { return d.r < that.config.labelRadiusThreshold})
-				.html('');
+				});
 
 		});
 

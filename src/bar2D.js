@@ -96,20 +96,5 @@ moby.renderBar2D = function(data) {
 
 	labels.exit().remove();
 
-//	// title
-//	var title = charts.selectAll('div.title').data(function(d) { return [d];});
-//
-//	title.enter().append('div').attr({ 'class': 'title' })
-//		.style({
-//			width: this.config.width + 'px',
-//			height: height - 2 + 'px',
-//			position: 'absolute',
-//			'pointer-events': 'none'
-//		});
-//
-//	title.html(this.config.labelFormatter);
-//
-//	title.exit().remove();
-
 	return this;
 };

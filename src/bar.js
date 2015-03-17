@@ -2,7 +2,7 @@ moby.renderBar = function(data) {
 
 	var that = this;
 
-	var colors = moby.utils.colorPicker();
+    var colors = this.config.colors || moby.utils.colorPicker();
 
 	// containers
 	var container = d3.select(this.config.containerSelector);

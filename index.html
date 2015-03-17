@@ -44,15 +44,33 @@
 		{name: 'Title10', values: [1], category: 'd'}
 	];
 
+    var color = d3.scale.ordinal()
+        .range(['#e06666', '#aad4e5', '#65b9ab', '#75a2cb', '#eb974f']);
+
+    var isFiltered = false;
 	var bubbles = moby.init({
 			containerSelector: '#chart1'
 		})
 		.setConfig({
 			type: 'bubble',
 			colorByKey: 'category',
-			sortByKey: 'category'
+			sortByKey: 'category',
+			colors: color
 		})
-		.render(dataBubble);
+		.render(dataBubble)
+        .on('click', function(d, e){
+            if(isFiltered) {
+                this.render(dataBubble);
+                isFiltered = false;
+            }
+            else {
+                var dataFiltered = dataBubble.filter(function(dB, iB){
+                    return d.data.category === dB.category;
+                });
+                this.render(dataFiltered);
+                isFiltered = true;
+            }
+        });
 
 	var data1D = [
 		{name: 'Title1', values: [525], content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas diam', category: 'a'},

@@ -18,19 +18,20 @@ moby.init = function(config) {
         width: 300,
         height: 200,
         type: "bar",
-        transitionDuration: 300,
+        transitionDuration: 400,
         labelFormatter: moby.utils.formatLabel,
         tooltipFormatter: moby.utils.formatTooltip,
         colorByKey: null,
         sortByKey: null,
-        labelRadiusThreshold: 20
+        labelRadiusThreshold: 20,
+        colors: null
     };
     exports.setConfig = function(newConfig) {
         moby.utils.override(newConfig, this.config);
         return this;
     };
     exports.setConfig(config);
-    exports.events = d3.dispatch("hover", "hoverout");
+    exports.events = d3.dispatch("hover", "hoverout", "click");
     exports.tooltip = moby.tooltip.call(exports);
     exports.render = function(data) {
         if (data) {
@@ -300,7 +301,7 @@ moby.renderLine = function(data, config) {
 
 moby.renderBar = function(data) {
     var that = this;
-    var colors = moby.utils.colorPicker();
+    var colors = this.config.colors || moby.utils.colorPicker();
     var container = d3.select(this.config.containerSelector);
     var charts = container.selectAll("div.chart").data(data);
     charts.enter().append("div").attr({
@@ -481,7 +482,7 @@ moby.renderBubble = function(data) {
     }).size([ this.config.width, this.config.height ]).padding(2).value(function(d) {
         return d.value;
     });
-    var colors = moby.utils.colorPicker();
+    var colors = this.config.colors || moby.utils.colorPicker();
     var container = d3.select(this.config.containerSelector);
     var charts = container.selectAll("div.chart").data([ 0 ]);
     charts.enter().append("div").attr({
@@ -501,7 +502,9 @@ moby.renderBubble = function(data) {
         key: "a",
         value: 1,
         children: keywordsEntries
-    }));
+    }), function(d) {
+        return d.key;
+    });
     nodes.enter().append("div").attr({
         "class": "node"
     }).style({
@@ -511,8 +514,7 @@ moby.renderBubble = function(data) {
         height: 0 + "px",
         "border-radius": function(d) {
             return d.r + "px";
-        }
-    }).style({
+        },
         position: "absolute",
         "text-align": "center"
     }).on("mousemove", function(d, i) {
@@ -534,6 +536,13 @@ moby.renderBubble = function(data) {
         that.events.hoverout.call(that, d, {
             pos: mouse
         });
+    }).on("click", function(d, i) {
+        d3.select(this).classed("hover", false);
+        that.tooltip.hide.call(that);
+        var mouse = d3.mouse(container.node());
+        that.events.click.call(that, d, {
+            pos: mouse
+        });
     }).append("span").attr({
         "class": "label-container"
     }).style({
@@ -542,6 +551,7 @@ moby.renderBubble = function(data) {
         position: "absolute",
         left: 0
     });
+    nodes.selectAll(".label-container").html("");
     nodes.transition().duration(this.config.transitionDuration).styleTween("-webkit-transform", bubbleTween).styleTween("transform", bubbleTween).style({
         width: function(d) {
             return d.r * 2 + "px";
@@ -565,7 +575,9 @@ moby.renderBubble = function(data) {
             name: d.key,
             values: [ d.value ]
         });
-        d3.select(this).select(".label-container").html(text).style({
+        d3.select(this).select(".label-container").html("").filter(function() {
+            return d.r > that.config.labelRadiusThreshold;
+        }).html(text).style({
             "font-size": function() {
                 var fontSize = parseInt(this.style.fontSize, 10);
                 return ~~(fontSize * (d.r * 2) / this.offsetWidth) * .9 + "px";
@@ -576,9 +588,7 @@ moby.renderBubble = function(data) {
             "margin-left": function() {
                 return d.r * .1 + "px";
             }
-        }).filter(function() {
-            return d.r < that.config.labelRadiusThreshold;
-        }).html("");
+        });
     });
     nodes.exit().remove();
     d3.select(nodes[0][0]).classed("top", true).text("");
