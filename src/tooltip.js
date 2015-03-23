@@ -7,7 +7,7 @@ moby.tooltip = function() {
 		.style({
 			position: 'absolute',
 			'pointer-events': 'none',
-			display: 'block',
+			display: 'none',
 			'z-index': 10
 		});
 
